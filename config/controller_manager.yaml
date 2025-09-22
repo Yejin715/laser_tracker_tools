@@ -1,0 +1,15 @@
+/laser_tracker/controller_manager:
+  ros__parameters:
+    update_rate: 100  # Hz
+
+    joint_state_broadcaster:
+      type: joint_state_broadcaster/JointStateBroadcaster
+    pan_tilt_controller:
+      type: position_controllers/JointGroupPositionController
+
+/laser_tracker/pan_tilt_controller:
+  ros__parameters:
+    joints:
+      - Joint_Yaw
+      - Joint_Pitch
+    interface_name: position

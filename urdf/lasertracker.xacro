@@ -1,0 +1,143 @@
+<?xml version="1.0" ?>
+<robot name="lasertracker" xmlns:xacro="http://www.ros.org/wiki/xacro">
+
+  <xacro:include filename="$(find laser_tracker_tools)/urdf/materials.xacro" />
+  <xacro:include filename="$(find laser_tracker_tools)/urdf/lasertracker.gazebo" />
+
+  <link name="world"/>
+
+  <joint name="base" type="fixed">
+      <origin xyz="3.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+      <parent link="world"/>
+      <child link="base_link"/>
+      <axis xyz="0.0 0.0 0.0"/>
+      <limit lower="0.0" upper="0.0" effort="0.0" velocity="0.0"/>
+  </joint>
+  
+  <link name="base_link">
+    <inertial>
+      <origin xyz="-3.618764437576268e-18 -7.237528875152536e-18 0.0025" rpy="0 0 0"/>
+      <mass value="0.0770671947833746"/>
+      <inertia ixx="1.2e-05" iyy="1.2e-05" izz="2.4e-05" ixy="-0.0" iyz="-0.0" ixz="0.0"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="file://$(find laser_tracker_tools)/meshes/base_link.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="silver"/>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="file://$(find laser_tracker_tools)/meshes/base_link.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <link name="Link_1">
+    <inertial>
+      <origin xyz="0.00018869328495569018 -0.00022483382979837345 0.071459595268866" rpy="0 0 0"/>
+      <mass value="4.120583142610971"/>
+      <inertia ixx="0.007397" iyy="0.010189" izz="0.004435" ixy="-0.0" iyz="8.8e-05" ixz="3e-06"/>
+    </inertial>
+    <visual>
+      <origin xyz="-0.0 -0.0 -0.005" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="file://$(find laser_tracker_tools)/meshes/Link_1.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="red"/>
+    </visual>
+    <collision>
+      <origin xyz="-0.0 -0.0 -0.005" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="file://$(find laser_tracker_tools)/meshes/Link_1.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <link name="Link_2">
+    <inertial>
+      <origin xyz="-0.00021113003510141322 0.0 0.002059592205613331" rpy="0 0 0"/>
+      <mass value="0.9276291336344198"/>
+      <inertia ixx="0.000701" iyy="0.000381" izz="0.000423" ixy="-5e-06" iyz="-2e-06" ixz="2e-06"/>
+    </inertial>
+    <visual>
+      <origin xyz="-0.000757 0.0 -0.111321" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="file://$(find laser_tracker_tools)/meshes/Link_2.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+      <material name="green"/>
+    </visual>
+    <collision>
+      <origin xyz="-0.000757 0.0 -0.111321" rpy="0 0 0"/>
+      <geometry>
+        <mesh filename="file://$(find laser_tracker_tools)/meshes/Link_2.stl" scale="0.001 0.001 0.001"/>
+      </geometry>
+    </collision>
+  </link>
+
+  <joint name="Joint_Yaw" type="continuous">
+    <origin xyz="0.0 0.0 0.005" rpy="0 0 0"/>
+    <parent link="base_link"/>
+    <child link="Link_1"/>
+    <axis xyz="0.0 0.0 1.0"/>
+    <limit upper="4.014257" lower="-4.014257" effort="100" velocity="100"/>
+  </joint>
+
+  <joint name="Joint_Pitch" type="revolute">
+    <origin xyz="0.0 0.0 0.106321" rpy="0 0 0"/>
+    <parent link="Link_1"/>
+    <child link="Link_2"/>
+    <axis xyz="0.999868 -0.016134 0.001653"/>
+    <limit upper="1.047198" lower="-4.014257" effort="100" velocity="100"/>
+  </joint>
+
+  <ros2_control name="LaserTrackerSystem" type="system">
+    <hardware>
+      <plugin>gazebo_ros2_control/GazeboSystem</plugin>
+    </hardware>
+
+    <joint name="Joint_Yaw">
+      <command_interface name="position"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+
+    <joint name="Joint_Pitch">
+      <command_interface name="position"/>
+      <state_interface name="position"/>
+      <state_interface name="velocity"/>
+    </joint>
+  </ros2_control>
+
+  <gazebo>
+    <plugin filename="libgazebo_ros2_control.so" name="gazebo_ros2_control">
+      <robot_param_node>/laser_tracker/robot_state_publisher</robot_param_node>
+      <ros>
+        <namespace>laser_tracker</namespace>
+        <node_name>gazebo_ros2_control_tracker</node_name>
+        <remapping>/tf:=/laser_tracker/tf</remapping>
+      </ros>
+      <parameters>$(find laser_tracker_tools)/config/controller_manager.yaml</parameters>
+    </plugin>
+
+  <plugin name="laser_tracker_sim" filename="liblaser_tracker_tools.so">
+    <max_range>60.0</max_range>
+    <h_fov>0.17453</h_fov>
+    <v_fov>0.17453</v_fov>
+    <sigma_range>5.0e-6</sigma_range>
+    <sigma_angle>4.85e-6</sigma_angle>
+    <lock_ang_thresh>0.005</lock_ang_thresh>
+    <occlusion>true</occlusion>
+    <search_speed>0.3</search_speed>
+    <beam_len>1.0</beam_len>
+    <update_rate>50.0</update_rate>
+
+    <target_link>ee_smr</target_link> 
+    <pan_cmd_topic>/laser_tracker/pan_tilt_controller/commands</pan_cmd_topic>
+    <tracker_frame>base_link</tracker_frame>
+  </plugin>
+  </gazebo>
+
+</robot>
