@@ -7,7 +7,7 @@
   <link name="world"/>
 
   <joint name="base" type="fixed">
-      <origin xyz="3.0 0.0 0.0" rpy="0.0 0.0 0.0"/>
+      <origin xyz="3.0 0.0 0.0" rpy="0.0 0.0 -1.5708"/>
       <parent link="world"/>
       <child link="base_link"/>
       <axis xyz="0.0 0.0 0.0"/>
@@ -77,6 +77,22 @@
     </collision>
   </link>
 
+  <link name="optic_frame">
+    <inertial>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <mass value="1e-6"/>
+      <inertia ixx="1e-6" iyy="1e-6" izz="1e-6" ixy="0" ixz="0" iyz="0"/>
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><sphere radius="0.001"/></geometry>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <geometry><sphere radius="0.001"/></geometry>
+    </collision>
+  </link>
+
   <joint name="Joint_Yaw" type="continuous">
     <origin xyz="0.0 0.0 0.005" rpy="0 0 0"/>
     <parent link="base_link"/>
@@ -92,6 +108,14 @@
     <axis xyz="0.999868 -0.016134 0.001653"/>
     <limit upper="1.047198" lower="-4.014257" effort="100" velocity="100"/>
   </joint>
+
+  <joint name="optic_fixed" type="fixed">
+    <origin xyz="-0.001 -0.056 0.0025" rpy="0.0 0.0 0.0"/>
+    <parent link="Link_2"/>
+    <child link="optic_frame"/>
+    <axis xyz="0.0 0.0 0.0"/>
+  </joint>
+
 
   <ros2_control name="LaserTrackerSystem" type="system">
     <hardware>
@@ -118,6 +142,7 @@
         <namespace>laser_tracker</namespace>
         <node_name>gazebo_ros2_control_tracker</node_name>
         <remapping>/tf:=/laser_tracker/tf</remapping>
+        <remapping>/tf_static:=/laser_tracker/tf_static</remapping>
       </ros>
       <parameters>$(find laser_tracker_tools)/config/controller_manager.yaml</parameters>
     </plugin>

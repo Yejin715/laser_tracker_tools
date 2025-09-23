@@ -31,4 +31,10 @@
   <self_collide>true</self_collide>
 </gazebo>
 
+<gazebo reference="optic_frame">
+  <material>${color_silver}</material>
+  <mu1>0.2</mu1>
+  <mu2>0.2</mu2>
+  <self_collide>true</self_collide>
+</gazebo>
 </robot>

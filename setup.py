@@ -27,7 +27,8 @@ setup(
     entry_points={
         'console_scripts': [
             'auto_aim_node = laser_tracker_tools.auto_aim_node:main',
-            'laser_tracker_meas_node = laser_tracker_tools.laser_tracker_meas_node:main',
+            'beam_viz_node = laser_tracker_tools.beam_viz_node:main',
+            'ee_from_tracker_node = laser_tracker_tools.ee_from_tracker_node:main',
         ],
     },
 )
